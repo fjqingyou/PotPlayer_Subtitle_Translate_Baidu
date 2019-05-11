@@ -56,38 +56,39 @@ string userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like
 
 string Translate(string text, string &in srcLang, string &in dstLang){
 	string ret = "";
+	if(!text.empty()){//确实有内容需要翻译才有必要继续
+		//开发文档。需要App id 等信息
+		//http://api.fanyi.baidu.com/api/trans/product/apidoc
+		// HostOpenConsole();	// for debug
+		
+		//语言选择
+		srcLang = GetLang(srcLang);
+		dstLang = GetLang(dstLang);
+		
+		
+	//	API.. Always UTF-8
+		string q = HostUrlEncode(text);
+		
+		string salt = "" + HostGetTickCount();//随机数
+		string sign = HostHashMD5(appId + text + salt + toKey);//签名 appid+q+salt+密钥
+		string parames = "from=" + srcLang + "&to=" + dstLang + "&appid=" + appId + "&sign=" + sign  + "&salt=" + salt + "&q=" + q;
+		string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?" + parames;
 
-	//开发文档。需要App id 等信息
-	//http://api.fanyi.baidu.com/api/trans/product/apidoc
-	// HostOpenConsole();	// for debug
-	
-	//语言选择
-	srcLang = GetLang(srcLang);
-	dstLang = GetLang(dstLang);
-	
-	
-//	API.. Always UTF-8
-	string q = HostUrlEncode(text);
-	
-	string salt = "" + HostGetTickCount();//随机数
-	string sign = HostHashMD5(appId + text + salt + toKey);//签名 appid+q+salt+密钥
-	string parames = "from=" + srcLang + "&to=" + dstLang + "&appid=" + appId + "&sign=" + sign  + "&salt=" + salt + "&q=" + q;
-	string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?" + parames;
+		// HostPrintUTF8("url == " + url);// for debug
+		string html = HostUrlGetString(url, userAgent);
 
-	// HostPrintUTF8("url == " + url);// for debug
-	string html = HostUrlGetString(url, userAgent);
+		if(!html.empty()){
+			ret = JsonParse(html);
+		}
 
-	if(!html.empty()){
-		ret = JsonParse(html);
-	}
+		if (ret.length() > 0){
+			srcLang = "UTF8";
+			dstLang = "UTF8";
+		}	
 
-	if (ret.length() > 0){
-		srcLang = "UTF8";
-		dstLang = "UTF8";
-	}	
-
-	if(text == ret){//如果翻译后的译文，跟原文一致
-		ret = "";//那么忽略这个字幕
+		if(text == ret){//如果翻译后的译文，跟原文一致
+			ret = "";//那么忽略这个字幕
+		}
 	}
 	return ret;
 }
@@ -174,11 +175,11 @@ string JsonParse(string json){
 			}else{//如果没发生错误
 				JsonValue transResult = root["trans_result"];//取得翻译结果
 				if(transResult.isArray()){//如果有翻译结果-必须是数组形式
-					for(uint i = 0; i < transResult.size(); i++){
+					for(int i = 0; i < transResult.size(); i++){
 						JsonValue item = transResult[i];//取得翻译结果
 						JsonValue dst = item["dst"];//获取翻译结果的目标
 						if(i > 0){//如果需要处理多行的情况
-							ret += "\N";//第二行开始的开头位置，加上换行符
+							ret += "\n";//第二行开始的开头位置，加上换行符
 						}
 						ret += dst.asString();//拼接翻译结果，可能存在多行
 					}
