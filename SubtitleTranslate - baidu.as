@@ -16,6 +16,12 @@
 //必须配置的部分
 string appId = "XXXXXXXXXXXXXXXXXXX";//appid
 string toKey = "XXXXXXXXXXXXXXXXXXX";//密钥
+int coolTime = 1000;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
+
+//执行环境
+int NULL = 0;
+int executeThreadId = NULL;//这个变量的命名是我的目标，不过，暂时没能实现!只是做了个还有小bug的临时替代方案
+int nextExecuteTime = 0;//下次执行代码的时间
 
 string GetVersion(){
 	return "1";
@@ -74,14 +80,34 @@ string Translate(string text, string &in srcLang, string &in dstLang){
 		string parames = "from=" + srcLang + "&to=" + dstLang + "&appid=" + appId + "&sign=" + sign  + "&salt=" + salt + "&q=" + q;
 		string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?" + parames;
 
+		//线程同步 - 独占锁
+		acquireExclusiveLock();
+
+		//计算冷却时间，应百度翻译新版API要求，加入频率设定
+		int tickCount = HostGetTickCount();
+		int sleepTime = nextExecuteTime - tickCount;
+
+		// HostPrintUTF8("tickCount == " + tickCount + " sleepTime == " + sleepTime);// for debug
+
+		if(sleepTime > 0){//如果冷却时间还没到，有需要休息的部分
+			HostSleep(sleepTime);//那么就休息这些时间
+		}
+
+		
 		// HostPrintUTF8("url == " + url);// for debug
 		string html = HostUrlGetString(url, userAgent);
 
-		if(!html.empty()){
-			ret = JsonParse(html);
+		//更新下次执行任务的时间
+		nextExecuteTime = coolTime + HostGetTickCount();//上面 HostUrlGetString 需要时间执行，所以需要重新获取 TickCount
+
+		//线程同步 - 释放独占锁
+		releaseExclusiveLock();
+
+		if(!html.empty()){//如果成功取得 Html 内容
+			ret = JsonParse(html);//那么解析这个 HTML 里面的 json 内容
 		}
 
-		if (ret.length() > 0){
+		if (ret.length() > 0){//如果有翻译结果
 			srcLang = "UTF8";
 			dstLang = "UTF8";
 		}	
@@ -188,4 +214,44 @@ string JsonParse(string json){
 		}
 	} 
 	return ret;
+}
+
+/**
+上独占锁 - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
+*/
+void acquireExclusiveLock(){
+	int tickCount1 = HostGetTickCount();//取得第一个时刻
+	HostSleep(1);
+	int tickCount2 = HostGetTickCount();//取得第二个时刻
+	/**
+	注意：
+	1、这是一个临时的方案
+	2、因为我本地尝试：HostLoadLibrary("Kernel32.dll") 没能正常工作，所以才采用当前这个临时方案
+	3、key 原本应该是唯一的，不然可能存在多个线程得到的是同一个tickCount。会导致多个线程同时执行，意味着这多个线程只能成功一个翻译，虽然已经做了部分防御，但是不能确保万一！
+	4、当然，上方的触发的概率不高，不过确实存在这个bug。
+	5、所以当前只能作为临时方案，有更好的方案时，必须替换掉
+	*/
+	int key = tickCount1 << 16 + (tickCount2 & 0xFFFF);//两个时刻合并，使得多线程重复相同数字的概率下降，但还是有可能重复，当前这个算法，仅仅能作为临时的解决方案而已！
+
+	while(executeThreadId != key){
+		if(executeThreadId == NULL){//如果没其他任务在执行了
+			executeThreadId = key;//尝试注册当前任务为执行任务
+		}
+
+		HostSleep(1);//休息下，看看有没有抢着注册的其他线程任务，或者等待正在执行的任务解除锁
+
+		if(executeThreadId == key){//如果没被其他线程抢注册了
+			HostSleep(1);//再次休息下
+			if(executeThreadId == key){//二次确认，确保原子性
+				break;//成功抢到执行权限，不必再等待了
+			}
+		}
+	}
+}
+
+/**
+释放独占锁 - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
+*/
+void releaseExclusiveLock(){
+	executeThreadId = NULL;//解除锁
 }

@@ -15,9 +15,10 @@
     2、我的服务下面一点，如果有“此服务已停用 开启（这两个字蓝色）”的提示，点击“开启”
     3、拉到底部，会有“申请信息”，里面包含 “APP ID” 和 “密钥”
     4、用记事本等文本编辑器打开SubtitleTranslate - baidu.as这个文件
-    5、大约17行位置，string appId = "XXXXXXXXXXXXXXXXXXX";//appid，把一长串的X，替换为刚才获取到的APP ID，主要不要删除到英文的引号
-    6、大约18行位置，string toKey = "XXXXXXXXXXXXXXXXXXX";//密钥，把一长串的X，替换为刚才获取到的密钥，主要不要删除到英文的引号
+    5、大约17行位置，string appId = "XXXXXXXXXXXXXXXXXXX";//appid，把一长串的X，替换为刚才获取到的APP ID，主要不要删除到英文的引号和分号
+    6、大约18行位置，string toKey = "XXXXXXXXXXXXXXXXXXX";//密钥，把一长串的X，替换为刚才获取到的密钥，主要不要删除到英文的引号和分号
     7、保存文件
+    8、可选的，一般不用，百度翻译有默认翻译冷却时间，短时间内传输翻译请求可能会被拦截，如果翻译结果会提示 error:54003那么就是被拦截了, 如果出现这个，请重新打开这个文件，修改大概19行位置的 int coolTime = 1000; 数字1000，将它加大一些，然后保存好文件再试试，如果不够就再加大一些，1000是指1秒钟，1000毫秒=1秒。注意不要删除掉这行的最后一个英文的分号
 
 # 第三步：安装翻译插件
     1、将修改后的SubtitleTranslate - baidu.as、SubtitleTranslate - baidu.ico这两个文件选中，Ctrl+C复制
@@ -35,7 +36,7 @@
     6、畅玩吧
 
 # 常见错误
->如果集成后，翻译结果出现：error: 数字，error_msg:英语，那么根据数字，在下方查找原因：
+>如果集成后，翻译结果出现：error: 数字，error_msg:英语，那么根据数字，在下方截图查找原因：
 ![QQ20190703-085634](https://user-images.githubusercontent.com/31087168/61015667-2a950100-a3bf-11e9-8d21-4f111260c5fe.png)
 
     
