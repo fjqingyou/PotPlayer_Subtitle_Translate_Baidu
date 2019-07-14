@@ -13,15 +13,21 @@
 // array<string> GetDstLangs() 												-> get target language
 // string Translate(string Text, string &in SrcLang, string &in DstLang) 	-> do translate !!
 
-//必须配置的部分
-string appId = "XXXXXXXXXXXXXXXXXXX";//appid
-string toKey = "XXXXXXXXXXXXXXXXXXX";//密钥
-int coolTime = 1000;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
 
-//执行环境
+//必须配置的部分，不过现在已经移交到“实时字幕翻译”中了
+//它的位置是： 打开任意视频或者点击左上角的PolPlayer -> 字幕 -> 实时字幕翻译 -> 实时字幕翻译设置 -> 选中百度翻译 -> 点右边的 “账户设置”
+string appId = "";//appid
+string toKey = "";//密钥
+
+//可选配置，一般而言是不用修改的！
+int coolTime = 1000;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
+string userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";//这个是可选配置，一般不用修改！
+
+//执行环境，请不要修改！
 int NULL = 0;
 int executeThreadId = NULL;//这个变量的命名是我的目标，不过，暂时没能实现!只是做了个还有小bug的临时替代方案
 int nextExecuteTime = 0;//下次执行代码的时间
+
 
 string GetVersion(){
 	return "1";
@@ -37,12 +43,22 @@ string GetDesc(){
 }
 
 string GetLoginTitle(){
-	return "";
+	return "请输入配置";
 }
 
 string GetLoginDesc(){
-	return "";
+	return "请输入AppId和密钥！";
 }
+
+
+string GetUserText(){
+	return "App ID:";
+}
+
+string GetPasswordText(){
+	return "密钥:";
+}
+
 
 array<string> GetSrcLangs(){
 	array<string> ret = GetLangTable();
@@ -55,9 +71,12 @@ array<string> GetDstLangs(){
 	return GetLangTable();
 }
 
-
-string userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-
+string ServerLogin(string appIdStr, string toKeyStr){
+	if (appIdStr.empty() || toKeyStr.empty()) return "fail";
+	appId = appIdStr;
+	toKey = toKeyStr;
+	return "200 ok";
+}
 
 
 string Translate(string text, string &in srcLang, string &in dstLang){
