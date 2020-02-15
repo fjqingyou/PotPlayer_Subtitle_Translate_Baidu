@@ -132,7 +132,7 @@ string Translate(string text, string &in srcLang, string &in dstLang){
 		}	
 
 		if(text == ret){//如果翻译后的译文，跟原文一致
-			ret = "";//那么忽略这个字幕
+			ret = " ";//那么忽略这个字幕
 		}
 	}
 	return ret;
