@@ -126,13 +126,16 @@ string Translate(string text, string &in srcLang, string &in dstLang){
 			ret = JsonParse(html);//那么解析这个 HTML 里面的 json 内容
 		}
 
+		if(text == ret){//如果翻译后的译文，跟原文一致
+			if (srcLang == "zh" && dstLang == "cht"){}      // 简体 转 繁体
+			else if (srcLang == "cht" && dstLang == "zh"){} // 繁体 转 简体
+			else
+				ret = " ";//那么忽略这个字幕
+		}
+
 		if (ret.length() > 0){//如果有翻译结果
 			srcLang = "UTF8";
 			dstLang = "UTF8";
-		}	
-
-		if(text == ret){//如果翻译后的译文，跟原文一致
-			ret = " ";//那么忽略这个字幕
 		}
 	}
 	return ret;
