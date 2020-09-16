@@ -1,4 +1,4 @@
-/*
+﻿/*
     real time subtitle translate for PotPlayer using Bai Du API
 */
 
@@ -17,7 +17,7 @@
 //必须配置的部分，不过现在已经移交到“实时字幕翻译”中了
 //它的位置是： 打开任意视频或者点击左上角的PolPlayer -> 字幕 -> 实时字幕翻译 -> 实时字幕翻译设置 -> 选中百度翻译 -> 点右边的 “账户设置”
 string appId = "";//appid
-string toKey = "";//密钥
+string toKen = "";//密钥
 
 //可选配置，一般而言是不用修改的！
 int coolTime = 1000;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
@@ -29,37 +29,61 @@ int executeThreadId = NULL;//这个变量的命名是我的目标，不过，暂
 int nextExecuteTime = 0;//下次执行代码的时间
 
 
+/**
+* 获取当前插件的版本号
+*/
 string GetVersion(){
     return "1";
 }
 
+/**
+* 获取当前插件的标题
+*/
 string GetTitle(){
     return "{$CP950=Bai Du 翻譯$}{$CP0=Bai Du translate$}";
 }
 
 
+/**
+* 获取当前插件的表述信息
+*/
 string GetDesc(){
     return "https://fanyi.baidu.com/";
 }
 
+/**
+* 获取登录的标题
+*/
 string GetLoginTitle(){
     return "请输入配置";
 }
 
+/**
+* 获取登录的描述信息
+*/
 string GetLoginDesc(){
     return "请输入AppId和密钥！";
 }
 
 
+/**
+* 获取登录时，用户输入框的标签名称
+*/
 string GetUserText(){
     return "App ID:";
 }
 
+/**
+* 获取登录时，密码输入框的标签名称
+*/
 string GetPasswordText(){
     return "密钥:";
 }
 
 
+/**
+* 获取支持的语言列表 - 源语言
+*/
 array<string> GetSrcLangs(){
     array<string> ret = GetLangTable();
     
@@ -67,18 +91,37 @@ array<string> GetSrcLangs(){
     return ret;
 }
 
+/**
+* 获取支持的语言列表 - 目标语言
+*/
 array<string> GetDstLangs(){
     return GetLangTable();
 }
 
-string ServerLogin(string appIdStr, string toKeyStr){
-    if (appIdStr.empty() || toKeyStr.empty()) return "fail";
+/**
+* 登录账号入口
+*
+*  这里不做校验了，只要有输入就判定为成功。具体测试由用户的翻译测试按钮去测试
+* @param appIdStr appid 字符串
+* @param toKenStr 秘钥字符串
+*/
+string ServerLogin(string appIdStr, string toKenStr){
+    //空字符串校验
+    if(appIdStr.empty() || toKenStr.empty()) return "fail";
+
+    //记录到全局变量中
     appId = appIdStr;
-    toKey = toKeyStr;
+    toKen = toKenStr;
     return "200 ok";
 }
 
 
+/**
+* 翻译的入口
+* @param text 待翻译的原文
+* @param srcLang 当前语言
+* @param dstLang 目标语言
+*/
 string Translate(string text, string &in srcLang, string &in dstLang){
     string ret = "";
     if(!text.empty()){//确实有内容需要翻译才有必要继续
@@ -90,12 +133,12 @@ string Translate(string text, string &in srcLang, string &in dstLang){
         srcLang = GetLang(srcLang);
         dstLang = GetLang(dstLang);
         
-        
-    //    API.. Always UTF-8
+        //对原文进行 url 编码
         string q = HostUrlEncode(text);
         
+        //构建请求的 url 地址
         string salt = "" + HostGetTickCount();//随机数
-        string sign = HostHashMD5(appId + text + salt + toKey);//签名 appid+q+salt+密钥
+        string sign = HostHashMD5(appId + text + salt + toKen);//签名 appid+q+salt+密钥
         string parames = "from=" + srcLang + "&to=" + dstLang + "&appid=" + appId + "&sign=" + sign  + "&salt=" + salt + "&q=" + q;
         string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?" + parames;
 
@@ -106,14 +149,12 @@ string Translate(string text, string &in srcLang, string &in dstLang){
         int tickCount = HostGetTickCount();
         int sleepTime = nextExecuteTime - tickCount;
 
-        // HostPrintUTF8("tickCount == " + tickCount + " sleepTime == " + sleepTime);// for debug
-
+        //冷却处理
         if(sleepTime > 0){//如果冷却时间还没到，有需要休息的部分
             HostSleep(sleepTime);//那么就休息这些时间
         }
 
-        
-        // HostPrintUTF8("url == " + url);// for debug
+        //请求翻译
         string html = HostUrlGetString(url, userAgent);
 
         //更新下次执行任务的时间
@@ -122,18 +163,23 @@ string Translate(string text, string &in srcLang, string &in dstLang){
         //线程同步 - 释放独占锁
         releaseExclusiveLock();
 
+        //解析翻译结果
         if(!html.empty()){//如果成功取得 Html 内容
             ret = JsonParse(html);//那么解析这个 HTML 里面的 json 内容
         }
 
+        //翻译结果特殊处理
         if(text == ret){//如果翻译后的译文，跟原文一致
-            if (srcLang == "zh" && dstLang == "cht"){}      // 简体 转 繁体
-            else if (srcLang == "cht" && dstLang == "zh"){} // 繁体 转 简体
-            else
+            if(srcLang == "zh" && dstLang == "cht"){// 简体 转 繁体
+                //不进行任何处理
+            }else if(srcLang == "cht" && dstLang == "zh"){// 繁体 转 简体
+                //不进行任何处理
+            }else{
                 ret = " ";//那么忽略这个字幕
+            }
         }
 
-        if (ret.length() > 0){//如果有翻译结果
+        if(ret.length() > 0){//如果有翻译结果
             srcLang = "UTF8";
             dstLang = "UTF8";
         }
@@ -141,7 +187,9 @@ string Translate(string text, string &in srcLang, string &in dstLang){
     return ret;
 }
 
-//获取语言
+/**
+* 获取语言
+*/
 string GetLang(string &in lang){
     string result = lang;
 
@@ -161,6 +209,9 @@ string GetLang(string &in lang){
 }
 
 
+/**
+* 支持的语言列表
+*/
 array<string> langTable = {
     "zh-CN",//->zh
     "zh-TW",//->cht
@@ -192,12 +243,17 @@ array<string> langTable = {
     "wyw",//文言文
 };
 
-//获取支持语言
+/**
+* 获取支持语言
+*/
 array<string>  GetLangTable(){
     return langTable;
 }
 
-//解析Json数据
+/**
+* 解析Json数据
+* @param json 服务器返回的Json字符串
+*/
 string JsonParse(string json){
     string ret = "";//返回值
     JsonReader reader;
