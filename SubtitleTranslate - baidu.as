@@ -1,4 +1,4 @@
-﻿/*
+/*
     real time subtitle translate for PotPlayer using Bai Du API
 */
 
@@ -205,18 +205,9 @@ string JsonParse(string json){
     
     if (reader.parse(json, root)){//如果成功解析了json内容
         if(root.isObject()){//要求是对象模式
-            bool hasError = false;
             array<string> keys = root.getKeys();//获取json root对象中所有的key
-
             //查找是否存在错误
-            for(uint i = 0; i < keys.size(); i++){
-                if("error_code" == keys[i]){
-                    hasError = true;
-                    break;
-                }
-            }
-
-            if(hasError){//如果发生了错误
+            if(hasErrorInResult(keys)){//如果发生了错误
                 JsonValue errorCode = root["error_code"];//错误编号
                 JsonValue errorMsg = root["error_msg"];//错误信息描述
                 ret = "error: " + errorCode.asString() + ", error_msg=" + errorMsg.asString();
@@ -236,6 +227,21 @@ string JsonParse(string json){
         }
     } 
     return ret;
+}
+
+/**
+* 检查翻译结果返回值中是否存在错误
+* @param keys json root 层的 key 列表
+*/
+bool hasErrorInResult(array<string> keys){
+    bool result = false;
+    for(uint i = 0; i < keys.size(); i++){
+        if("error_code" == keys[i]){
+            result = true;
+            break;
+        }
+    }
+    return result;
 }
 
 /**
