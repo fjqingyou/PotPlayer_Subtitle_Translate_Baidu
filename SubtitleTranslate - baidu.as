@@ -20,7 +20,7 @@ string appId = "";//appid
 string toKen = "";//密钥
 
 //可选配置，一般而言是不用修改的！
-int coolTime = 1000;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
+int coolTime = 1300;//冷却时间，这里的单位是毫秒，1秒钟=1000毫秒，如果提示 error:54003, 那么就加大这个数字，建议一次加100
 string userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";//这个是可选配置，一般不用修改！
 
 //执行环境，请不要修改！
