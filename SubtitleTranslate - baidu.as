@@ -238,7 +238,7 @@ array<string> langTable = {
     "slo",
     "swe",
     "hu",
-    "vie"
+    "vie",
     "yue",//粤语
     "wyw",//文言文
 };
