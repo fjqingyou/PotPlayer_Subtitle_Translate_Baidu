@@ -29,61 +29,45 @@ int executeThreadId = NULL;//这个变量的命名是我的目标，不过，暂
 int nextExecuteTime = 0;//下次执行代码的时间
 
 
-/**
-* 获取当前插件的版本号
-*/
+/** 获取当前插件的版本号*/
 string GetVersion(){
     return "1";
 }
 
-/**
-* 获取当前插件的标题
-*/
+/** 获取当前插件的标题 */
 string GetTitle(){
-    return "{$CP950=Bai Du 翻譯$}{$CP0=Bai Du translate$}";
+    return "{$CP950=百度翻譯$}{$CP936=百度翻译$}{$CP0=Bai Du translate$}";
 }
 
 
-/**
-* 获取当前插件的表述信息
-*/
+/** 获取当前插件的表述信息 */
 string GetDesc(){
     return "https://fanyi.baidu.com/";
 }
 
-/**
-* 获取登录的标题
-*/
+/** 获取登录的标题 */
 string GetLoginTitle(){
     return "请输入配置";
 }
 
-/**
-* 获取登录的描述信息
-*/
+/** 获取登录的描述信息 */
 string GetLoginDesc(){
     return "请输入AppId和密钥！";
 }
 
 
-/**
-* 获取登录时，用户输入框的标签名称
-*/
+/** 获取登录时，用户输入框的标签名称 */
 string GetUserText(){
     return "App ID:";
 }
 
-/**
-* 获取登录时，密码输入框的标签名称
-*/
+/** 获取登录时，密码输入框的标签名称 */
 string GetPasswordText(){
     return "密钥:";
 }
 
 
-/**
-* 获取支持的语言列表 - 源语言
-*/
+/** 获取支持的语言列表 - 源语言 */
 array<string> GetSrcLangs(){
     array<string> ret = GetLangTable();
     
@@ -91,20 +75,16 @@ array<string> GetSrcLangs(){
     return ret;
 }
 
-/**
-* 获取支持的语言列表 - 目标语言
-*/
+/** 获取支持的语言列表 - 目标语言 */
 array<string> GetDstLangs(){
     return GetLangTable();
 }
 
-/**
-* 登录账号入口
-*
-*  这里不做校验了，只要有输入就判定为成功。具体测试由用户的翻译测试按钮去测试
-* @param appIdStr appid 字符串
-* @param toKenStr 秘钥字符串
-*/
+/** 登录账号入口
+ *  - 这里不做校验了，只要有输入就判定为成功。具体测试由用户的翻译测试按钮去测试
+ * @param appIdStr appid 字符串
+ * @param toKenStr 秘钥字符串
+ */
 string ServerLogin(string appIdStr, string toKenStr){
     //空字符串校验
     if(appIdStr.empty() || toKenStr.empty()) return "fail";
@@ -116,12 +96,11 @@ string ServerLogin(string appIdStr, string toKenStr){
 }
 
 
-/**
-* 翻译的入口
-* @param text 待翻译的原文
-* @param srcLang 当前语言
-* @param dstLang 目标语言
-*/
+/** 翻译的入口
+ * @param text 待翻译的原文
+ * @param srcLang 当前语言
+ * @param dstLang 目标语言
+ */
 string Translate(string text, string &in srcLang, string &in dstLang){
     string ret = "";
     if(!text.empty()){//确实有内容需要翻译才有必要继续
@@ -187,9 +166,7 @@ string Translate(string text, string &in srcLang, string &in dstLang){
     return ret;
 }
 
-/**
-* 获取语言
-*/
+/** 获取语言 */
 string GetLang(string &in lang){
     string result = lang;
 
@@ -209,9 +186,7 @@ string GetLang(string &in lang){
 }
 
 
-/**
-* 支持的语言列表
-*/
+/** 支持的语言列表 */
 array<string> langTable = {
     "zh-CN",//->zh
     "zh-TW",//->cht
@@ -243,17 +218,14 @@ array<string> langTable = {
     "wyw",//文言文
 };
 
-/**
-* 获取支持语言
-*/
+/** 获取支持语言 */
 array<string>  GetLangTable(){
     return langTable;
 }
 
-/**
-* 解析Json数据
-* @param json 服务器返回的Json字符串
-*/
+/** 解析Json数据
+ * @param json 服务器返回的Json字符串
+ */
 string JsonParse(string json){
     string ret = "";//返回值
     JsonReader reader;
@@ -285,10 +257,9 @@ string JsonParse(string json){
     return ret;
 }
 
-/**
-* 检查翻译结果返回值中是否存在错误
-* @param keys json root 层的 key 列表
-*/
+/** 检查翻译结果返回值中是否存在错误
+ * @param keys json root 层的 key 列表
+ */
 bool hasErrorInResult(array<string> keys){
     bool result = false;
     for(uint i = 0; i < keys.size(); i++){
@@ -300,9 +271,9 @@ bool hasErrorInResult(array<string> keys){
     return result;
 }
 
-/**
-上独占锁 - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
-*/
+/** 上独占锁 
+ * - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
+ */
 void acquireExclusiveLock(){
     int tickCount1 = HostGetTickCount();//取得第一个时刻
     HostSleep(1);
@@ -333,9 +304,9 @@ void acquireExclusiveLock(){
     }
 }
 
-/**
-释放独占锁 - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
-*/
+/** 释放独占锁 
+ * - 当前仅仅只是模拟版，还有 bug ,不过暂时可临时使用
+ */
 void releaseExclusiveLock(){
     executeThreadId = NULL;//解除锁
 }
