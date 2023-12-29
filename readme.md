@@ -1,4 +1,5 @@
-# 声明：
+# 声明
+>
 >1、这个是机器翻译。所以翻译效果肯定不是很好，请不要抱太高的期望！
 >
 >2、我个人使用的环境是：不带字幕的视频+ass外挂字幕+在线翻译这样的结构。推荐也是用这个模式，内嵌字幕可能是硬绘制在视频帧图片里面，那种情况的视频暂时没法翻译。建议先找一个这种格式的，测试集成效果！
@@ -7,15 +8,17 @@
 ----
 
 # 费用方面 - 推荐选择完全免费的方式
+>
 >1、首先。当前插件是完全免费的！
 >
 >2、百度翻译默认开通的'标准版'服务当前是免费的，但是 2022年8月1日起将调整为 **免费5万字符/月**，可参考： [【百度翻译开放平台】关于通用文本翻译API版本权益调整的通知](https://github.com/fjqingyou/PotPlayer_Subtitle_Translate_Baidu/issues/24)，而具体详情请查阅百度翻译的官方文档和公告信息
 ----
 
 # 安装使用
+
 ## 第一步：必须开通百度翻译的开发者，并注册一个应用
 
->1、前往网址：http://api.fanyi.baidu.com/api/trans/product/prodinfo
+>1、前往网址：<http://api.fanyi.baidu.com/api/trans/product/prodinfo>
 >
 >2、登录你自己的百度账号
 >
@@ -81,6 +84,7 @@
 ----
 
 # 常见错误
+>
 >如果集成后，翻译结果出现：error: 数字，error_msg:英语，那么根据数字，在下方表格查找原因：
 >
 >|错误码|含义|推荐的解决方法|官方的解决方法|
@@ -90,7 +94,7 @@
 >|52002|系统错误|服务器错误，重试即可|重试|
 >|52003|未授权用户|参考右侧|检查您的 appid 是否正确，或者服务是否开通|
 >|54000|必填参数为空|应该是插件问题，建议反馈|检查是否少传参数|
->|54001|签名错误|应该是插件问题，建议反馈|请检查您的签名生成方法|
+>|54001|签名错误|有可能是Potplay版本过低，在 Potplay(64位版)，版本 230405(1.7.21900) 可正常工作。或者插件问题，建议反馈|请检查您的签名生成方法|
 >|54003|访问频率受限|提高 coolTime 的间隔时间，进而降低翻译频率|请降低您的调用频率|
 >|54004|账户余额不足|当前这个账号的本月翻译内容过多，等下月恢复额度，或者参考右侧|请前往管理控制台为账户充值|
 >|54005|长query请求频繁|提高 coolTime 的间隔时间，进而降低翻译频率|请降低长query的发送频率，3s后再试|
@@ -105,10 +109,8 @@
 
 >欢迎广大网友们继续扩展优化，欢迎任何有益的合并请求!
 >
->github发布地址：https://github.com/fjqingyou/PotPlayer_Subtitle_Translate_Baidu
+>github发布地址：<https://github.com/fjqingyou/PotPlayer_Subtitle_Translate_Baidu>
 >
->gitee发布地址：https://gitee.com/fjqingyou/PotPlayer_Subtitle_Translate_Baidu
+>gitee发布地址：<https://gitee.com/fjqingyou/PotPlayer_Subtitle_Translate_Baidu>
 >
 ----
-
-
