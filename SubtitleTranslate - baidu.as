@@ -119,7 +119,7 @@ string Translate(string text, string &in srcLang, string &in dstLang){
         string salt = "" + HostGetTickCount();//随机数
         string sign = HostHashMD5(appId + text + salt + toKen);//签名 appid+q+salt+密钥
         string parames = "from=" + srcLang + "&to=" + dstLang + "&appid=" + appId + "&sign=" + sign  + "&salt=" + salt + "&q=" + q;
-        string url = "http://api.fanyi.baidu.com/api/trans/vip/translate?" + parames;
+        string url = "https://fanyi-api.baidu.com/api/trans/vip/translate?" + parames;
 
         //线程同步 - 独占锁
         acquireExclusiveLock();
